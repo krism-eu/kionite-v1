@@ -1,18 +1,15 @@
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
 
-name: AURORA-V1.0
+name: mio-aurora-omega
 description: "Aurora KDE/Wayland fanless daily driver — Ryzen 5 5625U Vega 7, BIOS 10 W, Btrfs/Snapper, Bitwarden, zero friction"
 
 # Aurora stable segue il ramo stabile corrente.
-# In agosto 2026 il ramo stable e' basato su Fedora 44.
 base-image: ghcr.io/ublue-os/aurora-dx
 image-version: stable
 
 modules:
   # --------------------------------------------------------------------------
   # 1. FILE DI SISTEMA
-  #
-  # Il contenuto di ./system/ viene copiato nella root dell'immagine.
   # --------------------------------------------------------------------------
   - type: files
     files:
@@ -21,8 +18,6 @@ modules:
 
   # --------------------------------------------------------------------------
   # 2. PACCHETTI RPM EXTRA
-  #
-  # Sono stati rimossi i pacchetti gia' normalmente forniti da Aurora-DX.
   # --------------------------------------------------------------------------
   - type: dnf
     repos:
@@ -30,9 +25,6 @@ modules:
         - ublue-os/staging
         - atim/starship
         - aptupdate/bitwarden-cli
-
-    # Riduce le dipendenze opzionali.
-    install-weak-deps: false
 
     install:
       packages:
@@ -52,19 +44,12 @@ modules:
 
         # --------------------------------------------------------------------
         # Btrfs e Snapper
-        #
-        # btrfs-assistant e' la GUI per Btrfs/Snapper.
-        # snapper-gui non viene installato perche' non e' un pacchetto Fedora
-        # standard affidabile per questa immagine.
         # --------------------------------------------------------------------
         - snapper
         - btrfs-assistant
 
         # --------------------------------------------------------------------
         # Hardware e diagnostica
-        #
-        # Il Ryzen 5 5625U monta Radeon Vega 7, non Radeon 680M.
-        # Il limite energetico di 10 W e' gia' configurato nel BIOS.
         # --------------------------------------------------------------------
         - powertop
 
@@ -91,28 +76,7 @@ modules:
         - firefox-langpacks
 
   # --------------------------------------------------------------------------
-  # 3. KERNEL ARGUMENTS
-  #
-  # Nessun kernel argument aggiuntivo.
-  #
-  # Non vengono usati:
-  #   - rpm-ostree con kernel-args
-  #   - kargs
-  #   - ryzenadj
-  #   - nvme.noacpi=1
-  #   - amd_pstate=active
-  #   - rcutree.enable_rcu_lazy=1
-  #
-  # Il BIOS limita gia' l'APU a 10 W.
-  # nvme.noacpi=1 viene evitato per non peggiorare il power management NVMe.
-  # --------------------------------------------------------------------------
-
-  # --------------------------------------------------------------------------
-  # 4. FLATPAK DI SISTEMA E UTENTE
-  #
-  # Le app elencate vengono installate a livello di sistema.
-  # Il blocco user abilita Flathub anche per l'utente, cosi' Discover puo'
-  # installare Flatpak utente senza richiedere la password amministrativa.
+  # 3. FLATPAK DI SISTEMA E UTENTE
   # --------------------------------------------------------------------------
   - type: default-flatpaks
     configurations:
@@ -126,9 +90,7 @@ modules:
       - scope: user
 
   # --------------------------------------------------------------------------
-  # 5. SERVIZI SYSTEMD
-  #
-  # system: e' il contenitore corretto per le unita' di sistema.
+  # 4. SERVIZI SYSTEMD
   # --------------------------------------------------------------------------
   - type: systemd
     system:
@@ -142,12 +104,7 @@ modules:
         - systemd-oomd.service
 
   # --------------------------------------------------------------------------
-  # 6. FIRMA DELL'IMMAGINE - OPZIONALE
-  #
-  # Decommentare solo dopo aver configurato nei secret GitHub:
-  #
-  #   COSIGN_PRIVATE_KEY
-  #   COSIGN_PASSWORD
+  # 5. FIRMA DELL'IMMAGINE - OPZIONALE
   # --------------------------------------------------------------------------
   # - type: signing
   #   cosign:
