@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
 
 name: mio-aurora-omega
-description: "Aurora KDE/Wayland fanless daily driver — Ryzen 5 5625U Vega 7, BIOS 10 W, Btrfs/Snapper, Bitwarden, zero friction"
+description: "Aurora KDE/Wayland fanless daily driver — Ryzen 5 5625U Vega 7, BIOS 10 W, Btrfs/Snapper, zero friction"
 
 # Aurora stable segue il ramo stabile corrente.
 base-image: ghcr.io/ublue-os/aurora-dx
@@ -24,7 +24,6 @@ modules:
       copr:
         - ublue-os/staging
         - atim/starship
-        - aptupdate/bitwarden-cli
 
     install:
       packages:
@@ -56,7 +55,6 @@ modules:
         # --------------------------------------------------------------------
         # Strumenti CLI moderni
         # --------------------------------------------------------------------
-        - bitwarden-cli
         - rclone
         - starship
         - micro
