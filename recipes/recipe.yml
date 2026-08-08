@@ -1,45 +1,155 @@
----
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
-# image will be published to ghcr.io/<user>/<name>
-name: template
-# description will be included in the image's metadata
-description: This is my personal OS image.
 
-# the base image to build on top of (FROM) and the version tag to use
-base-image: ghcr.io/ublue-os/silverblue-main
-image-version: latest # You can pin to a specific version of Fedora as well
+name: mio-aurora-omega
+description: "Aurora KDE/Wayland fanless daily driver — Ryzen 5 5625U Vega 7, BIOS 10 W, Btrfs/Snapper, Bitwarden, zero friction"
 
-# module configuration, executed in order
-# you can include multiple instances of the same module
+# Aurora stable segue il ramo stabile corrente.
+# In agosto 2026 il ramo stable e' basato su Fedora 44.
+base-image: ghcr.io/ublue-os/aurora-dx
+image-version: stable
+
 modules:
+  # --------------------------------------------------------------------------
+  # 1. FILE DI SISTEMA
+  #
+  # Il contenuto di ./system/ viene copiato nella root dell'immagine.
+  # --------------------------------------------------------------------------
   - type: files
     files:
       - source: system
-        destination: / # copies files/system/* (* means everything inside it) into your image's root folder /
+        destination: /
 
+  # --------------------------------------------------------------------------
+  # 2. PACCHETTI RPM EXTRA
+  #
+  # Sono stati rimossi i pacchetti gia' normalmente forniti da Aurora-DX.
+  # --------------------------------------------------------------------------
   - type: dnf
     repos:
       copr:
+        - ublue-os/staging
         - atim/starship
+        - aptupdate/bitwarden-cli
+
+    # Riduce le dipendenze opzionali.
+    install-weak-deps: false
+
     install:
       packages:
-        - micro
+        # --------------------------------------------------------------------
+        # Utility desktop realmente extra
+        # --------------------------------------------------------------------
+        - dolphin-plugins
+        - kfind
+
+        # --------------------------------------------------------------------
+        # Utility terminale, rete e amministrazione
+        # --------------------------------------------------------------------
+        - btop
+        - ethtool
+        - lftp
+        - nmap-ncat
+
+        # --------------------------------------------------------------------
+        # Btrfs e Snapper
+        #
+        # btrfs-assistant e' la GUI per Btrfs/Snapper.
+        # snapper-gui non viene installato perche' non e' un pacchetto Fedora
+        # standard affidabile per questa immagine.
+        # --------------------------------------------------------------------
+        - snapper
+        - btrfs-assistant
+
+        # --------------------------------------------------------------------
+        # Hardware e diagnostica
+        #
+        # Il Ryzen 5 5625U monta Radeon Vega 7, non Radeon 680M.
+        # Il limite energetico di 10 W e' gia' configurato nel BIOS.
+        # --------------------------------------------------------------------
+        - powertop
+
+        # --------------------------------------------------------------------
+        # Strumenti CLI moderni
+        # --------------------------------------------------------------------
+        - bitwarden-cli
+        - rclone
         - starship
+        - micro
+        - fastfetch
+        - fzf
+        - zoxide
+        - bat
+        - eza
+        - ripgrep
+        - fd-find
+        - jq
+        - yq
+
     remove:
       packages:
-        # example: removing firefox (in favor of the flatpak)
-        # "firefox" is the main package, "firefox-langpacks" is a dependency
         - firefox
-        - firefox-langpacks # also remove firefox dependency (not required for all packages, this is a special case)
+        - firefox-langpacks
 
+  # --------------------------------------------------------------------------
+  # 3. KERNEL ARGUMENTS
+  #
+  # Nessun kernel argument aggiuntivo.
+  #
+  # Non vengono usati:
+  #   - rpm-ostree con kernel-args
+  #   - kargs
+  #   - ryzenadj
+  #   - nvme.noacpi=1
+  #   - amd_pstate=active
+  #   - rcutree.enable_rcu_lazy=1
+  #
+  # Il BIOS limita gia' l'APU a 10 W.
+  # nvme.noacpi=1 viene evitato per non peggiorare il power management NVMe.
+  # --------------------------------------------------------------------------
+
+  # --------------------------------------------------------------------------
+  # 4. FLATPAK DI SISTEMA E UTENTE
+  #
+  # Le app elencate vengono installate a livello di sistema.
+  # Il blocco user abilita Flathub anche per l'utente, cosi' Discover puo'
+  # installare Flatpak utente senza richiedere la password amministrativa.
+  # --------------------------------------------------------------------------
   - type: default-flatpaks
     configurations:
-      - notify: true # Send notification after install/uninstall is finished (true/false)
+      - notify: true
         scope: system
-        # If no repo information is specified, Flathub will be used by default
-        install: # system flatpaks we want all users to have and not remove
-          - org.mozilla.firefox
-          - org.gnome.Loupe
-      - scope: user # Also add Flathub user repo, but no user packages
+        install:
+          - com.github.tchx84.Flatseal
+          - org.kde.haruna
+          - org.kde.kolourpaint
 
-  - type: signing # this sets up the proper policy & signing files for signed images to work fully
+      - scope: user
+
+  # --------------------------------------------------------------------------
+  # 5. SERVIZI SYSTEMD
+  #
+  # system: e' il contenitore corretto per le unita' di sistema.
+  # --------------------------------------------------------------------------
+  - type: systemd
+    system:
+      enabled:
+        - snapper-timeline.timer
+        - snapper-cleanup.timer
+        - podman.socket
+
+      masked:
+        - rpm-ostreed-automatic.timer
+        - systemd-oomd.service
+
+  # --------------------------------------------------------------------------
+  # 6. FIRMA DELL'IMMAGINE - OPZIONALE
+  #
+  # Decommentare solo dopo aver configurato nei secret GitHub:
+  #
+  #   COSIGN_PRIVATE_KEY
+  #   COSIGN_PASSWORD
+  # --------------------------------------------------------------------------
+  # - type: signing
+  #   cosign:
+  #     private-key: ${{ secrets.COSIGN_PRIVATE_KEY }}
+  #     password: ${{ secrets.COSIGN_PASSWORD }}
