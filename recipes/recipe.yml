@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
 
-name: mio-aurora-omega
+name: AURORA-V1.0
 description: "Aurora KDE/Wayland fanless daily driver — Ryzen 5 5625U Vega 7, BIOS 10 W, Btrfs/Snapper, Bitwarden, zero friction"
 
 # Aurora stable segue il ramo stabile corrente.
