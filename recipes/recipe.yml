@@ -5,7 +5,7 @@ version: 1
 name: mio-kinoite-omega
 description: "Fedora Kinoite KDE/Wayland superlight — Ryzen 5 5625U Vega 7, 10 W fanless, Btrfs/Snapper, no gaming, no VM extras"
 
-base-image: ghcr.io/ublue-os/kinoite
+base-image: ghcr.io/ublue-os/kinoite-main
 image-version: stable
 
 modules:
