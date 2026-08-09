@@ -3,23 +3,25 @@
 version: 1
 
 name: mio-aurora-omega
-description: "Aurora KDE/Wayland fanless daily driver — Ryzen 5 5625U Vega 7, BIOS 10 W, Btrfs/Snapper, zero friction"
+description: "Aurora KDE/Wayland superlight — Ryzen 5 5625U Vega 7, 10 W fanless, Btrfs/Snapper, no gaming, no PIM, no VM/ARM extras"
 
 base-image: ghcr.io/ublue-os/aurora
 image-version: stable
 
 modules:
-  # --------------------------------------------------------------------------
+  # ==========================================================================
   # 1. FILE DI SISTEMA
-  # --------------------------------------------------------------------------
+  # ==========================================================================
+
   - type: files
     files:
       - source: system
         destination: /
 
-  # --------------------------------------------------------------------------
-  # 2. PACCHETTI RPM EXTRA E RIMOZIONE DEL SUPERFLUO
-  # --------------------------------------------------------------------------
+  # ==========================================================================
+  # 2. PACCHETTI RPM
+  # ==========================================================================
+
   - type: dnf
     repos:
       copr:
@@ -27,10 +29,15 @@ modules:
 
     install:
       packages:
-        # Utility KDE realmente mancanti
+        # ----------------------------------------------------------------------
+        # Btrfs e snapshot
+        # ----------------------------------------------------------------------
         - btrfs-assistant
+        - snapper
 
+        # ----------------------------------------------------------------------
         # Strumenti CLI moderni
+        # ----------------------------------------------------------------------
         - starship
         - micro
         - zoxide
@@ -40,6 +47,8 @@ modules:
         - fd-find
 
     remove:
+      auto-remove: false
+
       packages:
         # ----------------------------------------------------------------------
         # ZFS: il sistema usa Btrfs
@@ -69,17 +78,13 @@ modules:
         - hypervvssd
 
         # ----------------------------------------------------------------------
-        # MariaDB: nessun database server locale
+        # MariaDB: nessun database locale
         # ----------------------------------------------------------------------
         - mariadb
         - mariadb-server
         - mariadb-backup
-        - mariadb-common
-        - mariadb-connector-c
-        - mariadb-connector-c-config
-        - mariadb-cracklib-password-check
-        - mariadb-errmsg
         - mariadb-gssapi-server
+        - mariadb-cracklib-password-check
         - mysql-selinux
 
         # ----------------------------------------------------------------------
@@ -124,7 +129,7 @@ modules:
         - tesseract-langpack-hin
 
         # ----------------------------------------------------------------------
-        # Accessibilità: non utilizzata
+        # Accessibilità non utilizzata
         # ----------------------------------------------------------------------
         - braille-printer-app
         - brltty
@@ -157,6 +162,11 @@ modules:
         - NetworkManager-openvpn
         - NetworkManager-vpnc
 
+        # Plugin VPN dell'interfaccia Plasma
+        - plasma-nm-openconnect
+        - plasma-nm-openvpn
+        - plasma-nm-vpnc
+
         # ----------------------------------------------------------------------
         # Active Directory, LDAP e Kerberos non utilizzati
         # ----------------------------------------------------------------------
@@ -165,18 +175,16 @@ modules:
         - adcli-selinux
         - krb5-workstation
         - krb5-pkinit
-        - openldap
         - sssd-client
         - sssd-common
         - sssd-kcm
         - sssd-krb5-common
         - sssd-nfs-idmap
 
-      auto-remove: false
-
-  # --------------------------------------------------------------------------
+  # ==========================================================================
   # 3. FLATPAK DI SISTEMA
-  # --------------------------------------------------------------------------
+  # ==========================================================================
+
   - type: default-flatpaks
     configurations:
       - notify: true
@@ -189,9 +197,10 @@ modules:
       - notify: false
         scope: user
 
-  # --------------------------------------------------------------------------
+  # ==========================================================================
   # 4. SERVIZI SYSTEMD
-  # --------------------------------------------------------------------------
+  # ==========================================================================
+
   - type: systemd
     system:
       enabled:
@@ -199,10 +208,12 @@ modules:
         - snapper-cleanup.timer
         - podman.socket
 
-  # --------------------------------------------------------------------------
+  # ==========================================================================
   # 5. FIRMA DELL'IMMAGINE - OPZIONALE
-  # --------------------------------------------------------------------------
+  # ==========================================================================
+
   # - type: signing
   #   cosign:
   #     private-key: ${{ secrets.COSIGN_PRIVATE_KEY }}
   #     password: ${{ secrets.COSIGN_PASSWORD }}
+sul discorso dell inversion e logica cosi come siamo messi?
