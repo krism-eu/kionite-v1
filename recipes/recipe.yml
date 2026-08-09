@@ -1,5 +1,7 @@
 # yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
 
+version: 1
+
 name: mio-aurora-omega
 description: "Aurora KDE/Wayland fanless daily driver — Ryzen 5 5625U Vega 7, BIOS 10 W, Btrfs/Snapper, zero friction"
 
@@ -16,76 +18,164 @@ modules:
         destination: /
 
   # --------------------------------------------------------------------------
-  # 2. PACCHETTI RPM EXTRA
+  # 2. PACCHETTI RPM EXTRA E RIMOZIONE DEL SUPERFLUO
   # --------------------------------------------------------------------------
   - type: dnf
     repos:
       copr:
-        - ublue-os/staging
         - atim/starship
 
     install:
       packages:
-        # --------------------------------------------------------------------
-        # Utility desktop realmente extra
-        # --------------------------------------------------------------------
-        - dolphin-plugins
-        - kfind
-
-        # --------------------------------------------------------------------
-        # Archivi e compatibilità d’uso quotidiano
-        # --------------------------------------------------------------------
-        - p7zip
-        - unzip
-        - unrar
-
-        # --------------------------------------------------------------------
-        # Utility terminale, rete e amministrazione
-        # --------------------------------------------------------------------
-        - btop
-        - curl
-        - wget
-        - nano
-        - ethtool
-        - lftp
-        - nmap-ncat
-
-        # --------------------------------------------------------------------
-        # Btrfs e Snapper
-        # --------------------------------------------------------------------
-        - snapper
+        # Utility KDE realmente mancanti
         - btrfs-assistant
 
-        # --------------------------------------------------------------------
-        # Hardware, sensori e diagnostica
-        # --------------------------------------------------------------------
-        - lm_sensors
-        - powertop
-
-        # --------------------------------------------------------------------
         # Strumenti CLI moderni
-        # --------------------------------------------------------------------
-        - rclone
         - starship
         - micro
-        - fastfetch
-        - fzf
         - zoxide
         - bat
         - eza
         - ripgrep
         - fd-find
-        - jq
-        - yq
 
     remove:
       packages:
-        - firefox
-        - firefox-langpacks
+        # ----------------------------------------------------------------------
+        # ZFS: il sistema usa Btrfs
+        # ----------------------------------------------------------------------
+        - zfs
+        - kmod-zfs
+        - libzfs7
+        - libzpool7
+        - libnvpair3
+        - libuutil3
+        - python3-pyzfs
+
+        # ----------------------------------------------------------------------
+        # Guest tools VM: sistema installato su hardware fisico
+        # ----------------------------------------------------------------------
+        - virtualbox-guest-additions
+        - open-vm-tools
+        - open-vm-tools-desktop
+        - spice-vdagent
+        - spice-webdavd
+        - qemu-guest-agent
+        - qemu-user-static-aarch64
+        - hyperv-daemons
+        - hyperv-daemons-license
+        - hypervfcopyd
+        - hypervkvpd
+        - hypervvssd
+
+        # ----------------------------------------------------------------------
+        # MariaDB: nessun database server locale
+        # ----------------------------------------------------------------------
+        - mariadb
+        - mariadb-server
+        - mariadb-backup
+        - mariadb-common
+        - mariadb-connector-c
+        - mariadb-connector-c-config
+        - mariadb-cracklib-password-check
+        - mariadb-errmsg
+        - mariadb-gssapi-server
+        - mysql-selinux
+
+        # ----------------------------------------------------------------------
+        # Metodi di input asiatici
+        # ----------------------------------------------------------------------
+        - fcitx5-chewing
+        - fcitx5-chinese-addons
+        - fcitx5-chinese-addons-data
+        - fcitx5-hangul
+        - fcitx5-mozc
+        - fcitx5-unikey
+
+        - ibus-anthy
+        - ibus-anthy-python
+        - ibus-chewing
+        - ibus-hangul
+        - ibus-libpinyin
+        - ibus-m17n
+        - ibus-typing-booster
+
+        - kasumi-common
+        - kasumi-unicode
+        - anthy-unicode
+        - libchewing
+        - libhangul
+        - libpinyin
+        - libpinyin-data
+        - libime
+        - libime-data
+        - m17n-db
+        - m17n-lib
+
+        # ----------------------------------------------------------------------
+        # OCR: lingue non necessarie
+        # ----------------------------------------------------------------------
+        - tesseract-langpack-chi_sim
+        - tesseract-langpack-chi_sim_vert
+        - tesseract-langpack-chi_tra
+        - tesseract-langpack-chi_tra_vert
+        - tesseract-langpack-jpn
+        - tesseract-langpack-jpn_vert
+        - tesseract-langpack-hin
+
+        # ----------------------------------------------------------------------
+        # Accessibilità: non utilizzata
+        # ----------------------------------------------------------------------
+        - braille-printer-app
+        - brltty
+        - brlapi
+        - python3-brlapi
+        - espeak-ng
+        - speech-dispatcher
+        - speech-dispatcher-espeak-ng
+        - speech-dispatcher-libs
+        - speech-dispatcher-utils
+        - orca
+
+        # ----------------------------------------------------------------------
+        # Gaming, streaming, VR e periferiche gaming
+        # ----------------------------------------------------------------------
+        - Sunshine
+        - gamemode
+        - oversteer-udev
+        - kmod-xone
+        - xone-kmod-common
+        - openxr-libs
+
+        # ----------------------------------------------------------------------
+        # VPN non utilizzate
+        # ----------------------------------------------------------------------
+        - openconnect
+        - openvpn
+        - vpnc
+        - NetworkManager-openconnect
+        - NetworkManager-openvpn
+        - NetworkManager-vpnc
+
+        # ----------------------------------------------------------------------
+        # Active Directory, LDAP e Kerberos non utilizzati
+        # ----------------------------------------------------------------------
+        - realmd
+        - adcli
+        - adcli-selinux
+        - krb5-workstation
+        - krb5-pkinit
+        - openldap
+        - sssd-client
+        - sssd-common
+        - sssd-kcm
+        - sssd-krb5-common
+        - sssd-nfs-idmap
+
       auto-remove: false
 
   # --------------------------------------------------------------------------
-  # 3. FLATPAK DI SISTEMA E UTENTE
+  # 3. FLATPAK DI SISTEMA
   # --------------------------------------------------------------------------
   - type: default-flatpaks
     configurations:
@@ -96,7 +186,8 @@ modules:
           - org.kde.haruna
           - org.kde.kolourpaint
 
-      - scope: user
+      - notify: false
+        scope: user
 
   # --------------------------------------------------------------------------
   # 4. SERVIZI SYSTEMD
@@ -107,10 +198,6 @@ modules:
         - snapper-timeline.timer
         - snapper-cleanup.timer
         - podman.socket
-
-      masked:
-        - rpm-ostreed-automatic.timer
-        - systemd-oomd.service
 
   # --------------------------------------------------------------------------
   # 5. FIRMA DELL'IMMAGINE - OPZIONALE
