@@ -2,17 +2,16 @@
 
 version: 1
 
-name: mio-aurora-omega
-description: "Aurora KDE/Wayland superlight — Ryzen 5 5625U Vega 7, 10 W fanless, Btrfs/Snapper, no gaming, no PIM, no VM/ARM extras"
+name: mio-kinoite-omega
+description: "Fedora Kinoite KDE/Wayland superlight — Ryzen 5 5625U Vega 7, 10 W fanless, Btrfs/Snapper, no gaming, no VM extras"
 
-base-image: ghcr.io/ublue-os/aurora
+base-image: ghcr.io/ublue-os/kinoite
 image-version: stable
 
 modules:
   # ==========================================================================
   # 1. FILE DI SISTEMA
   # ==========================================================================
-
   - type: files
     files:
       - source: system
@@ -21,7 +20,6 @@ modules:
   # ==========================================================================
   # 2. PACCHETTI RPM
   # ==========================================================================
-
   - type: dnf
     repos:
       copr:
@@ -29,15 +27,8 @@ modules:
 
     install:
       packages:
-        # ----------------------------------------------------------------------
-        # Btrfs e snapshot
-        # ----------------------------------------------------------------------
         - btrfs-assistant
         - snapper
-
-        # ----------------------------------------------------------------------
-        # Strumenti CLI moderni
-        # ----------------------------------------------------------------------
         - starship
         - micro
         - zoxide
@@ -48,19 +39,7 @@ modules:
 
     remove:
       auto-remove: false
-
       packages:
-        # ----------------------------------------------------------------------
-        # ZFS: il sistema usa Btrfs
-        # ----------------------------------------------------------------------
-        - zfs
-        - kmod-zfs
-        - libzfs7
-        - libzpool7
-        - libnvpair3
-        - libuutil3
-        - python3-pyzfs
-
         # ----------------------------------------------------------------------
         # Guest tools VM: sistema installato su hardware fisico
         # ----------------------------------------------------------------------
@@ -90,13 +69,6 @@ modules:
         # ----------------------------------------------------------------------
         # Metodi di input asiatici
         # ----------------------------------------------------------------------
-        - fcitx5-chewing
-        - fcitx5-chinese-addons
-        - fcitx5-chinese-addons-data
-        - fcitx5-hangul
-        - fcitx5-mozc
-        - fcitx5-unikey
-
         - ibus-anthy
         - ibus-anthy-python
         - ibus-chewing
@@ -104,29 +76,9 @@ modules:
         - ibus-libpinyin
         - ibus-m17n
         - ibus-typing-booster
-
         - kasumi-common
         - kasumi-unicode
         - anthy-unicode
-        - libchewing
-        - libhangul
-        - libpinyin
-        - libpinyin-data
-        - libime
-        - libime-data
-        - m17n-db
-        - m17n-lib
-
-        # ----------------------------------------------------------------------
-        # OCR: lingue non necessarie
-        # ----------------------------------------------------------------------
-        - tesseract-langpack-chi_sim
-        - tesseract-langpack-chi_sim_vert
-        - tesseract-langpack-chi_tra
-        - tesseract-langpack-chi_tra_vert
-        - tesseract-langpack-jpn
-        - tesseract-langpack-jpn_vert
-        - tesseract-langpack-hin
 
         # ----------------------------------------------------------------------
         # Accessibilità non utilizzata
@@ -135,21 +87,15 @@ modules:
         - brltty
         - brlapi
         - python3-brlapi
-        - espeak-ng
         - orca
 
         # ----------------------------------------------------------------------
-        # Gaming, streaming, VR e periferiche gaming
+        # Gaming
         # ----------------------------------------------------------------------
-        - Sunshine
         - gamemode
-        - oversteer-udev
-        - kmod-xone
-        - xone-kmod-common
-        - openxr-libs
 
         # ----------------------------------------------------------------------
-        # VPN non utilizzate
+        # VPN (Rimossi solo i backend, NON tocco i plugin di KDE plasma-nm)
         # ----------------------------------------------------------------------
         - openconnect
         - openvpn
@@ -175,7 +121,6 @@ modules:
   # ==========================================================================
   # 3. FLATPAK DI SISTEMA
   # ==========================================================================
-
   - type: default-flatpaks
     configurations:
       - notify: true
@@ -184,14 +129,12 @@ modules:
           - com.github.tchx84.Flatseal
           - org.kde.haruna
           - org.kde.kolourpaint
-
       - notify: false
         scope: user
 
   # ==========================================================================
   # 4. SERVIZI SYSTEMD
   # ==========================================================================
-
   - type: systemd
     system:
       enabled:
@@ -202,7 +145,6 @@ modules:
   # ==========================================================================
   # 5. FIRMA DELL'IMMAGINE - OPZIONALE
   # ==========================================================================
-
   # - type: signing
   #   cosign:
   #     private-key: ${{ secrets.COSIGN_PRIVATE_KEY }}
