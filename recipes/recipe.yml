@@ -3,8 +3,7 @@
 name: mio-aurora-omega
 description: "Aurora KDE/Wayland fanless daily driver — Ryzen 5 5625U Vega 7, BIOS 10 W, Btrfs/Snapper, zero friction"
 
-# Aurora stable segue il ramo stabile corrente.
-base-image: ghcr.io/ublue-os/aurora-dx
+base-image: ghcr.io/ublue-os/aurora
 image-version: stable
 
 modules:
@@ -34,9 +33,19 @@ modules:
         - kfind
 
         # --------------------------------------------------------------------
+        # Archivi e compatibilità d’uso quotidiano
+        # --------------------------------------------------------------------
+        - p7zip
+        - unzip
+        - unrar
+
+        # --------------------------------------------------------------------
         # Utility terminale, rete e amministrazione
         # --------------------------------------------------------------------
         - btop
+        - curl
+        - wget
+        - nano
         - ethtool
         - lftp
         - nmap-ncat
@@ -48,8 +57,9 @@ modules:
         - btrfs-assistant
 
         # --------------------------------------------------------------------
-        # Hardware e diagnostica
+        # Hardware, sensori e diagnostica
         # --------------------------------------------------------------------
+        - lm_sensors
         - powertop
 
         # --------------------------------------------------------------------
@@ -72,6 +82,7 @@ modules:
       packages:
         - firefox
         - firefox-langpacks
+      auto-remove: false
 
   # --------------------------------------------------------------------------
   # 3. FLATPAK DI SISTEMA E UTENTE
