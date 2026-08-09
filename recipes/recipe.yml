@@ -64,7 +64,6 @@ modules:
         - mariadb-backup
         - mariadb-gssapi-server
         - mariadb-cracklib-password-check
-        - mysql-selinux
 
         # ----------------------------------------------------------------------
         # Metodi di input asiatici
@@ -105,13 +104,9 @@ modules:
         - NetworkManager-vpnc
 
         # ----------------------------------------------------------------------
-        # Active Directory, LDAP e Kerberos non utilizzati
+        # Active Directory, LDAP e SSSD non utilizzati
         # ----------------------------------------------------------------------
         - realmd
-        - adcli
-        - adcli-selinux
-        - krb5-workstation
-        - krb5-pkinit
         - sssd-client
         - sssd-common
         - sssd-kcm
