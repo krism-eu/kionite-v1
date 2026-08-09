@@ -136,10 +136,6 @@ modules:
         - brlapi
         - python3-brlapi
         - espeak-ng
-        - speech-dispatcher
-        - speech-dispatcher-espeak-ng
-        - speech-dispatcher-libs
-        - speech-dispatcher-utils
         - orca
 
         # ----------------------------------------------------------------------
@@ -161,11 +157,6 @@ modules:
         - NetworkManager-openconnect
         - NetworkManager-openvpn
         - NetworkManager-vpnc
-
-        # Plugin VPN dell'interfaccia Plasma
-        - plasma-nm-openconnect
-        - plasma-nm-openvpn
-        - plasma-nm-vpnc
 
         # ----------------------------------------------------------------------
         # Active Directory, LDAP e Kerberos non utilizzati
