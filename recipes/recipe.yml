@@ -18,13 +18,19 @@ modules:
         destination: /
 
   # ==========================================================================
-  # 2. LANGPACK GLIBC MINIMI
+  # 2. PACCHETTI BASE NECESSARI
   # ==========================================================================
   - type: dnf
     install:
       packages:
         - glibc-langpack-en
         - glibc-langpack-it
+        - snapper
+        - btrfs-assistant
+        - btrfsmaintenance
+        - rclone
+        - mt7xxx-firmware
+
 
   # ==========================================================================
   # 3. RIMOZIONI BASE: VM, INPUT, ACCESSIBILITA, GAMING E VPN
@@ -113,10 +119,8 @@ modules:
         - krdp
 
         # Componenti KDE opzionali non utilizzati
-        - kinfocenter
         - khelpcenter
         - plasma-welcome
-        - plasma-systemmonitor
         - kdebugsettings
         - plasma-thunderbolt
 
