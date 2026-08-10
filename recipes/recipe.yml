@@ -342,21 +342,31 @@ modules:
         - opencc
 
   # ==========================================================================
-  # 9. RIMOZIONE WALLPAPER COMPLETI
+  # 9. FLATPAK DI SISTEMA
   # ==========================================================================
-  - type: dnf
-    remove:
-      auto-remove: false
-      packages:
-        - plasma-workspace-wallpapers
+  - type: default-flatpaks
+    configurations:
+      - notify: true
+        scope: system
+        install:
+          - com.github.tchx84.Flatseal
+      - notify: false
+        scope: user
 
   # ==========================================================================
-  # 10. WALLPAPER SELEZIONATI
+  # 10. SERVIZI SYSTEMD
   # ==========================================================================
-  # Prima della build copiare nel repository questi temi:
-  # system/usr/share/wallpapers/Shell
-  # system/usr/share/wallpapers/Coast
-  # system/usr/share/wallpapers/Nexus
-  # system/usr/share/wallpapers/Nuvole
-  # F44 e gia fornito da un altro pacchetto e non viene copiato qui.
-  - type: files
+  - type: systemd
+    system:
+      enabled:
+        - snapper-timeline.timer
+        - snapper-cleanup.timer
+        - podman.socket
+
+  # ==========================================================================
+  # 11. FIRMA DELL'IMMAGINE - OPZIONALE
+  # ==========================================================================
+  # - type: signing
+  #   cosign:
+  #     private-key: ${{ secrets.COSIGN_PRIVATE_KEY }}
+  #     password: ${{ secrets.COSIGN_PASSWORD }}
