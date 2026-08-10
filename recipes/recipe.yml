@@ -18,8 +18,8 @@ modules:
         destination: /
 
   # ==========================================================================
-  # 2.1 LANGPACK GLIBC MINIMI
-  # ========================================================================== 
+  # 2. LANGPACK GLIBC MINIMI
+  # ==========================================================================
   - type: dnf
     install:
       packages:
@@ -27,35 +27,9 @@ modules:
         - glibc-langpack-it
 
   # ==========================================================================
-  # 2.2 PACCHETTI RPM PRINCIPALI
+  # 3. RIMOZIONI BASE: VM, INPUT, ACCESSIBILITA, GAMING E VPN
   # ==========================================================================
   - type: dnf
-    repos:
-      copr:
-        - atim/starship
-
-    install:
-      packages:
-        # Utility Btrfs
-        - btrfs-assistant
-        - snapper
-
-        # Utility di sistema e monitoraggio
-        - btop
-        - lm_sensors
-        - powertop
-
-        # Strumenti CLI moderni
-        - starship
-        - micro
-        - zoxide
-        - bat
-        - eza
-        - ripgrep
-        - fd-find
-        - fzf
-        - fastfetch
-
     remove:
       auto-remove: false
       packages:
@@ -85,7 +59,7 @@ modules:
         - kasumi-unicode
         - anthy-unicode
 
-        # Accessibilità non utilizzata
+        # Accessibilita
         - braille-printer-app
         - brltty
         - brlapi
@@ -95,7 +69,7 @@ modules:
         # Gaming
         - gamemode
 
-        # VPN: backend rimossi, plugin KDE non toccati
+        # Backend VPN; i plugin KDE possono essere rimossi automaticamente
         - openconnect
         - openvpn
         - vpnc
@@ -103,9 +77,23 @@ modules:
         - NetworkManager-openvpn
         - NetworkManager-vpnc
 
+  # ==========================================================================
+  # 4. RIMOZIONI AKONADI/MARIADB
+  # ==========================================================================
+  # Akonadi e Akonadi-MySQL sono mantenuti fuori dalla rimozione perche i loro
+  # scriptlet %postun falliscono nel container Fedora durante la build:
+  # akonadi-server-mysql exit status 2 e akonadi-server exit status 2.
+  # Anche qt6-qtbase-mysql resta installato per coerenza con questa scelta.
+  # ==========================================================================
+
+  # ==========================================================================
+  # 5. RIMOZIONI MODEM, FIRMWARE INTEL E SMARTCARD
+  # ==========================================================================
+  - type: dnf
+    remove:
+      auto-remove: false
+      packages:
         # PIM, modem e componenti opzionali
-        - akonadi-server
-        - akonadi-server-mysql
         - fwupd-plugin-modem-manager
         - kunifiedpush
         - mobile-broadband-provider-info
@@ -143,6 +131,13 @@ modules:
         - ykpers
         - yubikey-manager
 
+  # ==========================================================================
+  # 6. RIMOZIONI KDE, VLC E FONT MULTIMEDIA
+  # ==========================================================================
+  - type: dnf
+    remove:
+      auto-remove: false
+      packages:
         # Integrazione Google Drive KDE
         - kio-gdrive
         - libkgapi
@@ -159,20 +154,7 @@ modules:
         - vlc-plugins-base
         - vlc-plugins-video-out
 
-        # Database MariaDB e backend SQL di Akonadi
-        - mariadb
-        - mariadb-server
-        - mariadb-backup
-        - mariadb-gssapi-server
-        - mariadb-cracklib-password-check
-        - mysql-selinux
-        - mariadb-common
-        - mariadb-connector-c
-        - mariadb-connector-c-config
-        - mariadb-errmsg
-        - qt6-qtbase-mysql
-
-        # Metapacchetti font linguistici non necessari
+        # Font linguistici non necessari
         - default-fonts-am
         - default-fonts-ar
         - default-fonts-as
@@ -258,7 +240,23 @@ modules:
         - cldr-emoji-annotation
         - cldr-emoji-annotation-dtd
 
-        # Input method asiatici Fcitx5 e relative librerie
+        # Residui Fedora Workstation
+        - xdriinfo
+        - fedora-bookmarks
+        - fedora-chromium-config
+        - fedora-chromium-config-kde
+        - fedora-workstation-backgrounds
+
+        # Sostituito dai langpack minimi en/it
+        - glibc-all-langpacks
+
+  # ==========================================================================
+  # 7. RIMOZIONE INPUT METHOD FCITX5
+  # ==========================================================================
+  - type: dnf
+    remove:
+      auto-remove: false
+      packages:
         - fcitx5-chewing
         - fcitx5-chinese-addons
         - fcitx5-chinese-addons-data
@@ -279,20 +277,32 @@ modules:
         - m17n-lib
         - opencc
 
-        # Utility X11 non necessaria; Xwayland e supporto SDDM restano
-        - xdriinfo
-
-        # Residui Fedora Workstation
-        - fedora-bookmarks
-        - fedora-chromium-config
-        - fedora-chromium-config-kde
-        - fedora-workstation-backgrounds
-
-        # Sostituito da glibc-langpack-en e glibc-langpack-it
-        - glibc-all-langpacks
+  # ==========================================================================
+  # 8. PACCHETTI RPM PRINCIPALI
+  # ==========================================================================
+  - type: dnf
+    repos:
+      copr:
+        - atim/starship
+    install:
+      packages:
+        - btrfs-assistant
+        - snapper
+        - btop
+        - lm_sensors
+        - powertop
+        - starship
+        - micro
+        - zoxide
+        - bat
+        - eza
+        - ripgrep
+        - fd-find
+        - fzf
+        - fastfetch
 
   # ==========================================================================
-  # 3. FLATPAK DI SISTEMA
+  # 9. FLATPAK DI SISTEMA
   # ==========================================================================
   - type: default-flatpaks
     configurations:
@@ -304,7 +314,7 @@ modules:
         scope: user
 
   # ==========================================================================
-  # 4. SERVIZI SYSTEMD
+  # 10. SERVIZI SYSTEMD
   # ==========================================================================
   - type: systemd
     system:
@@ -314,7 +324,7 @@ modules:
         - podman.socket
 
   # ==========================================================================
-  # 5. FIRMA DELL'IMMAGINE - OPZIONALE
+  # 11. FIRMA DELL'IMMAGINE - OPZIONALE
   # ==========================================================================
   # - type: signing
   #   cosign:
