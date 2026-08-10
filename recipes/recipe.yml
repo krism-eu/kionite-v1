@@ -59,7 +59,7 @@ modules:
         - kasumi-unicode
         - anthy-unicode
 
-        # Accessibilita
+        # Accessibilita non utilizzata
         - braille-printer-app
         - brltty
         - brlapi
@@ -69,7 +69,7 @@ modules:
         # Gaming
         - gamemode
 
-        # Backend VPN; i plugin KDE possono essere rimossi automaticamente
+        # Backend VPN
         - openconnect
         - openvpn
         - vpnc
@@ -78,16 +78,61 @@ modules:
         - NetworkManager-vpnc
 
   # ==========================================================================
-  # 4. RIMOZIONI AKONADI/MARIADB
+  # 4. RIMOZIONI STRUMENTI E COMPONENTI OPZIONALI
   # ==========================================================================
-  # Akonadi e Akonadi-MySQL sono mantenuti fuori dalla rimozione perche i loro
-  # scriptlet %postun falliscono nel container Fedora durante la build:
-  # akonadi-server-mysql exit status 2 e akonadi-server exit status 2.
-  # Anche qt6-qtbase-mysql resta installato per coerenza con questa scelta.
-  # ==========================================================================
+  - type: dnf
+    remove:
+      auto-remove: false
+      packages:
+        # Firma/build e librerie AWS non necessarie nell'uso quotidiano
+        - cosign
+        - python3-botocore
+
+        # Debug e strumenti ridondanti
+        - gdb
+        - gdb-headless
+        - vim-enhanced
+        - nvtop
+        - htop
+
+        # Firmware GPU NVIDIA: sistema AMD
+        - nvidia-gpu-firmware
+
+        # Driver HP: la multifunzione epson usa CUPS/SANE/Gutenprint
+        - hplip
+        - hplip-common
+        - hplip-libs
+
+        # Driver stampanti non Epson
+        - printer-driver-brlaser
+        - ptouch-driver
+
+        # Desktop remoto KDE
+        - krfb
+        - krfb-libs
+        - krdp
+
+        # Componenti KDE opzionali non utilizzati
+        - kinfocenter
+        - khelpcenter
+        - plasma-welcome
+        - plasma-systemmonitor
+        - kdebugsettings
+        - plasma-thunderbolt
+
+        # Lettore impronte digitali non utilizzato
+        - fprintd
+        - fprintd-pam
 
   # ==========================================================================
-  # 5. RIMOZIONI MODEM, FIRMWARE INTEL E SMARTCARD
+  # 5. AKONADI/MARIADB: MANTENUTI
+  # ==========================================================================
+  # Akonadi e Akonadi-MySQL sono mantenuti perche i loro scriptlet %postun
+  # falliscono nel container Fedora durante la build.
+  # Anche MariaDB e qt6-qtbase-mysql restano installati in questa versione.
+
+  # ==========================================================================
+  # 6. RIMOZIONI MODEM, FIRMWARE INTEL E SMARTCARD
   # ==========================================================================
   - type: dnf
     remove:
@@ -97,10 +142,11 @@ modules:
         - fwupd-plugin-modem-manager
         - kunifiedpush
         - mobile-broadband-provider-info
-        - mt7xxx-firmware
         - qcom-wwan-firmware
         - usb_modeswitch
         - usb_modeswitch-data
+
+        # mt7xxx-firmware NON va rimosso: serve al Wi-Fi/Bluetooth MediaTek
 
         # Componenti Intel non necessari sul sistema Ryzen/AMD
         - intel-gmmlib
@@ -132,7 +178,7 @@ modules:
         - yubikey-manager
 
   # ==========================================================================
-  # 6. RIMOZIONI KDE, VLC E FONT MULTIMEDIA
+  # 7. RIMOZIONI KDE, VLC, FONT E FIREFOX
   # ==========================================================================
   - type: dnf
     remove:
@@ -251,12 +297,30 @@ modules:
         - glibc-all-langpacks
 
   # ==========================================================================
-  # 7. RIMOZIONE INPUT METHOD FCITX5
+  # 8. RIMOZIONE INPUT METHOD FCITX5
   # ==========================================================================
   - type: dnf
     remove:
       auto-remove: false
       packages:
+        # Core Fcitx5 non utilizzato
+        - fcitx5
+        - fcitx5-configtool
+        - fcitx5-data
+        - fcitx5-gtk
+        - fcitx5-gtk3
+        - fcitx5-gtk4
+        - fcitx5-libs
+        - fcitx5-lua
+        - fcitx5-qt
+        - fcitx5-qt5
+        - fcitx5-qt6
+        - fcitx5-qt-libfcitx5qt6widgets
+        - fcitx5-qt-libfcitx5qtdbus
+        - fcitx5-qt-qt6gui
+        - kcm-fcitx5
+
+        # Addon e librerie input asiatiche
         - fcitx5-chewing
         - fcitx5-chinese-addons
         - fcitx5-chinese-addons-data
@@ -278,55 +342,21 @@ modules:
         - opencc
 
   # ==========================================================================
-  # 8. PACCHETTI RPM PRINCIPALI
+  # 9. RIMOZIONE WALLPAPER COMPLETI
   # ==========================================================================
   - type: dnf
-    repos:
-      copr:
-        - atim/starship
-    install:
+    remove:
+      auto-remove: false
       packages:
-        - btrfs-assistant
-        - snapper
-        - btop
-        - lm_sensors
-        - powertop
-        - starship
-        - micro
-        - zoxide
-        - bat
-        - eza
-        - ripgrep
-        - fd-find
-        - fzf
-        - fastfetch
+        - plasma-workspace-wallpapers
 
   # ==========================================================================
-  # 9. FLATPAK DI SISTEMA
+  # 10. WALLPAPER SELEZIONATI
   # ==========================================================================
-  - type: default-flatpaks
-    configurations:
-      - notify: true
-        scope: system
-        install:
-          - com.github.tchx84.Flatseal
-      - notify: false
-        scope: user
-
-  # ==========================================================================
-  # 10. SERVIZI SYSTEMD
-  # ==========================================================================
-  - type: systemd
-    system:
-      enabled:
-        - snapper-timeline.timer
-        - snapper-cleanup.timer
-        - podman.socket
-
-  # ==========================================================================
-  # 11. FIRMA DELL'IMMAGINE - OPZIONALE
-  # ==========================================================================
-  # - type: signing
-  #   cosign:
-  #     private-key: ${{ secrets.COSIGN_PRIVATE_KEY }}
-  #     password: ${{ secrets.COSIGN_PASSWORD }}
+  # Prima della build copiare nel repository questi temi:
+  # system/usr/share/wallpapers/Shell
+  # system/usr/share/wallpapers/Coast
+  # system/usr/share/wallpapers/Nexus
+  # system/usr/share/wallpapers/Nuvole
+  # F44 e gia fornito da un altro pacchetto e non viene copiato qui.
+  - type: files
