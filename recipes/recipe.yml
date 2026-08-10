@@ -30,6 +30,7 @@ modules:
         - btrfsmaintenance
         - rclone
         - mt7xxx-firmware
+        - plasma-print-manager
 
 
   # ==========================================================================
@@ -124,9 +125,6 @@ modules:
         - kdebugsettings
         - plasma-thunderbolt
 
-        # Lettore impronte digitali non utilizzato
-        - fprintd
-        - fprintd-pam
         # Condivisioni Windows/Samba e client CIFS non utilizzati
         - samba
         - samba-client
