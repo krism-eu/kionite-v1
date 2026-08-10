@@ -125,24 +125,6 @@ modules:
         - kdebugsettings
         - plasma-thunderbolt
 
-        # Condivisioni Windows/Samba e client CIFS non utilizzati
-        - samba
-        - samba-client
-        - samba-client-libs
-        - samba-common
-        - samba-common-tools
-        - samba-core-libs
-        - samba-dcerpc
-        - samba-ldb-ldap-modules
-        - samba-libs
-        - samba-ndr-libs
-        - samba-usershares
-        - libnetapi
-        - libsmbclient
-        - libwbclient
-        - cifs-utils
-        - cifs-utils-info
-
         # Client NFS non utilizzati
         - nfs-client-utils
         - nfs-common-utils
