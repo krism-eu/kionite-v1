@@ -2,24 +2,24 @@
 
 version: 1
 
-name: mio-kinoite-omega
+name: kionite-v1
 description: "Fedora Kinoite KDE/Wayland superlight — Ryzen 5 5625U Vega 7, 10 W fanless, Btrfs/Snapper, no gaming, no VM extras"
 
 base-image: ghcr.io/ublue-os/kinoite-main
 image-version: latest
 
 modules:
-  # =========================================================================
+  # ==========================================================================
   # 1. FILE DI SISTEMA
-  # =========================================================================
+  # ==========================================================================
   - type: files
     files:
       - source: system
         destination: /
 
-  # =========================================================================
+  # ==========================================================================
   # 2. PACCHETTI RPM
-  # =========================================================================
+  # ==========================================================================
   - type: dnf
     repos:
       copr:
@@ -27,8 +27,16 @@ modules:
 
     install:
       packages:
+        # Utility Btrfs
         - btrfs-assistant
         - snapper
+
+        # Utility di sistema e monitoraggio
+        - btop
+        - lm_sensors
+        - powertop
+
+        # Strumenti CLI moderni
         - starship
         - micro
         - zoxide
@@ -36,6 +44,12 @@ modules:
         - eza
         - ripgrep
         - fd-find
+        - fzf
+        - fastfetch
+
+        # Langpack mantenuti dopo la rimozione di glibc-all-langpacks
+        - glibc-langpack-en
+        - glibc-langpack-it
 
     remove:
       auto-remove: false
@@ -94,6 +108,198 @@ modules:
         - NetworkManager-openvpn
         - NetworkManager-vpnc
 
+        # ----------------------------------------------------------------------
+        # Pacchetti confermati rimovibili dopo verifica rpm-ostree --dry-run
+        # ----------------------------------------------------------------------
+
+        # PIM, modem e componenti opzionali
+        - akonadi-server
+        - akonadi-server-mysql
+        - fwupd-plugin-modem-manager
+        - kunifiedpush
+        - mobile-broadband-provider-info
+        - mt7xxx-firmware
+        - qcom-wwan-firmware
+        - usb_modeswitch
+        - usb_modeswitch-data
+
+        # Componenti Intel non necessari sul sistema Ryzen/AMD
+        - intel-gmmlib
+        - intel-gpu-firmware
+        - intel-lpmd
+        - intel-mediasdk
+        - intel-vaapi-driver
+        - intel-vpl-gpu-rt
+        - intel-vsc-firmware
+        - libva-intel-media-driver
+
+        # Smartcard, PC/SC e YubiKey
+        - libpskc
+        - libyubikey
+        - opensc
+        - opensc-libs
+        - pam-u2f
+        - pam_yubico
+        - pamu2fcfg
+        - pcsc-lite
+        - pcsc-lite-ccid
+        - pcsc-lite-libs
+        - python3-fido2
+        - python3-pskc
+        - python3-pyscard
+        - python3-yubikey-manager
+        - ykclient
+        - ykpers
+        - yubikey-manager
+
+        # Integrazione Google Drive KDE
+        - kio-gdrive
+        - libkgapi
+
+        # VLC e backend Phonon VLC
+        - phonon-backend-vlc-common
+        - phonon-qt5-backend-vlc
+        - phonon-qt6-backend-vlc
+        - vlc-libs
+        - vlc-plugin-ffmpeg
+        - vlc-plugin-gstreamer
+        - vlc-plugin-pipewire
+        - vlc-plugin-pulseaudio
+        - vlc-plugins-base
+        - vlc-plugins-video-out
+
+        # Database MariaDB (Rimozione sicura dopo akonadi-server-mysql)
+        - mariadb
+        - mariadb-server
+        - mariadb-backup
+        - mariadb-gssapi-server
+        - mariadb-cracklib-password-check
+        - mysql-selinux
+        - mariadb-common
+        - mariadb-connector-c
+        - mariadb-connector-c-config
+        - mariadb-errmsg
+        - qt6-qtbase-mysql
+
+        # Font e metapacchetti linguistici non necessari
+        - default-fonts-am
+        - default-fonts-ar
+        - default-fonts-as
+        - default-fonts-ast
+        - default-fonts-be
+        - default-fonts-bg
+        - default-fonts-bn
+        - default-fonts-bo
+        - default-fonts-br
+        - default-fonts-chr
+        - default-fonts-dv
+        - default-fonts-dz
+        - default-fonts-el
+        - default-fonts-eo
+        - default-fonts-eu
+        - default-fonts-fa
+        - default-fonts-got
+        - default-fonts-gu
+        - default-fonts-he
+        - default-fonts-hi
+        - default-fonts-hy
+        - default-fonts-ia
+        - default-fonts-ii
+        - default-fonts-iu
+        - default-fonts-ka
+        - default-fonts-kab
+        - default-fonts-km
+        - default-fonts-kn
+        - default-fonts-ku
+        - default-fonts-lo
+        - default-fonts-mai
+        - default-fonts-ml
+        - default-fonts-mni
+        - default-fonts-mr
+        - default-fonts-my
+        - default-fonts-nb
+        - default-fonts-ne
+        - default-fonts-nn
+        - default-fonts-nqo
+        - default-fonts-nr
+        - default-fonts-nso
+        - default-fonts-or
+        - default-fonts-other-sans
+        - default-fonts-other-serif
+        - default-fonts-pa
+        - default-fonts-ru
+        - default-fonts-sat
+        - default-fonts-si
+        - default-fonts-ss
+        - default-fonts-syr
+        - default-fonts-ta
+        - default-fonts-te
+        - default-fonts-th
+        - default-fonts-tn
+        - default-fonts-ts
+        - default-fonts-uk
+        - default-fonts-ur
+        - default-fonts-ve
+        - default-fonts-vi
+        - default-fonts-xh
+        - default-fonts-yi
+        - default-fonts-zu
+        - jomolhari-fonts
+        - madan-fonts
+        - paktype-naskh-basic-fonts
+        - rit-meera-new-fonts
+        - rit-rachana-fonts
+        - sil-padauk-fonts
+        - vazirmatn-vf-fonts
+
+        # Font CJK
+        - default-fonts-cjk-mono
+        - default-fonts-cjk-serif
+        - google-noto-sans-cjk-fonts
+        - google-noto-sans-mono-cjk-vf-fonts
+        - google-noto-serif-cjk-vf-fonts
+
+        # Firefox RPM e pacchetti lingua
+        - firefox
+        - firefox-langpacks
+
+        # CLDR emoji annotation
+        - cldr-emoji-annotation
+        - cldr-emoji-annotation-dtd
+
+        # Input method asiatici Fcitx5 e relative librerie
+        - fcitx5-chewing
+        - fcitx5-chinese-addons
+        - fcitx5-chinese-addons-data
+        - fcitx5-hangul
+        - fcitx5-libthai
+        - fcitx5-m17n
+        - fcitx5-mozc
+        - fcitx5-sayura
+        - fcitx5-unikey
+        - libchewing
+        - libhangul
+        - libime
+        - libime-data
+        - libpinyin
+        - libpinyin-data
+        - m17n-db
+        - m17n-db-devel
+        - m17n-lib
+        - opencc
+
+        # Utility X11 non necessaria; Xwayland e il supporto SDDM restano
+        - xdriinfo
+
+        # Residui Fedora Workstation
+        - fedora-bookmarks
+        - fedora-chromium-config
+        - fedora-chromium-config-kde
+        - fedora-workstation-backgrounds
+
+        # Sostituzione dei langpack glibc: rimuovere l'aggregatore mantenendo EN/IT
+        - glibc-all-langpacks
+
   # ==========================================================================
   # 3. FLATPAK DI SISTEMA
   # ==========================================================================
@@ -103,8 +309,6 @@ modules:
         scope: system
         install:
           - com.github.tchx84.Flatseal
-          - org.kde.haruna
-          - org.kde.kolourpaint
       - notify: false
         scope: user
 
