@@ -18,7 +18,16 @@ modules:
         destination: /
 
   # ==========================================================================
-  # 2. PACCHETTI RPM
+  # 2.1 LANGPACK GLIBC MINIMI
+  # ========================================================================== 
+  - type: dnf
+    install:
+      packages:
+        - glibc-langpack-en
+        - glibc-langpack-it
+
+  # ==========================================================================
+  # 2.2 PACCHETTI RPM PRINCIPALI
   # ==========================================================================
   - type: dnf
     repos:
@@ -47,16 +56,10 @@ modules:
         - fzf
         - fastfetch
 
-        # Langpack mantenuti dopo la rimozione di glibc-all-langpacks
-        - glibc-langpack-en
-        - glibc-langpack-it
-
     remove:
       auto-remove: false
       packages:
-        # ----------------------------------------------------------------------
-        # Guest tools VM: sistema installato su hardware fisico (Sicuri al 100%)
-        # ----------------------------------------------------------------------
+        # Guest tools VM
         - virtualbox-guest-additions
         - open-vm-tools
         - open-vm-tools-desktop
@@ -70,9 +73,7 @@ modules:
         - hypervkvpd
         - hypervvssd
 
-        # ----------------------------------------------------------------------
-        # Metodi di input asiatici (Sicuri al 100%)
-        # ----------------------------------------------------------------------
+        # Metodi di input asiatici IBus
         - ibus-anthy
         - ibus-anthy-python
         - ibus-chewing
@@ -84,33 +85,23 @@ modules:
         - kasumi-unicode
         - anthy-unicode
 
-        # ----------------------------------------------------------------------
-        # Accessibilità non utilizzata (Sicuri al 100%)
-        # ----------------------------------------------------------------------
+        # Accessibilità non utilizzata
         - braille-printer-app
         - brltty
         - brlapi
         - python3-brlapi
         - orca
 
-        # ----------------------------------------------------------------------
-        # Gaming (Sicuri al 100%)
-        # ----------------------------------------------------------------------
+        # Gaming
         - gamemode
 
-        # ----------------------------------------------------------------------
-        # VPN (Rimossi solo i backend, NON tocco i plugin di KDE)
-        # ----------------------------------------------------------------------
+        # VPN: backend rimossi, plugin KDE non toccati
         - openconnect
         - openvpn
         - vpnc
         - NetworkManager-openconnect
         - NetworkManager-openvpn
         - NetworkManager-vpnc
-
-        # ----------------------------------------------------------------------
-        # Pacchetti confermati rimovibili dopo verifica rpm-ostree --dry-run
-        # ----------------------------------------------------------------------
 
         # PIM, modem e componenti opzionali
         - akonadi-server
@@ -168,7 +159,7 @@ modules:
         - vlc-plugins-base
         - vlc-plugins-video-out
 
-        # Database MariaDB (Rimozione sicura dopo akonadi-server-mysql)
+        # Database MariaDB e backend SQL di Akonadi
         - mariadb
         - mariadb-server
         - mariadb-backup
@@ -181,7 +172,7 @@ modules:
         - mariadb-errmsg
         - qt6-qtbase-mysql
 
-        # Font e metapacchetti linguistici non necessari
+        # Metapacchetti font linguistici non necessari
         - default-fonts-am
         - default-fonts-ar
         - default-fonts-as
@@ -288,7 +279,7 @@ modules:
         - m17n-lib
         - opencc
 
-        # Utility X11 non necessaria; Xwayland e il supporto SDDM restano
+        # Utility X11 non necessaria; Xwayland e supporto SDDM restano
         - xdriinfo
 
         # Residui Fedora Workstation
@@ -297,7 +288,7 @@ modules:
         - fedora-chromium-config-kde
         - fedora-workstation-backgrounds
 
-        # Sostituzione dei langpack glibc: rimuovere l'aggregatore mantenendo EN/IT
+        # Sostituito da glibc-langpack-en e glibc-langpack-it
         - glibc-all-langpacks
 
   # ==========================================================================
