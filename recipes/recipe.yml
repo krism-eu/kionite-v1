@@ -3,7 +3,7 @@
 version: 1
 
 name: kionite-v1
-description: "Fedora Kinoite KDE/Wayland superlight — Ryzen 5 5625U Vega 7, 10 W fanless, Btrfs/Snapper, no gaming, no VM extras"
+description: "Fedora Kinoite KDE/Wayland superlight — Ryzen 5 5625U Vega 7, 10 W fanless, Btrfs/Snapper, no gaming, no guest tools"
 
 base-image: ghcr.io/ublue-os/kinoite-main
 image-version: latest
@@ -31,7 +31,24 @@ modules:
         - rclone
         - mt7xxx-firmware
         - plasma-print-manager
+        - kde-connect
 
+  # ==========================================================================
+  # 2,5. PACCHETTI VARI e VIRTUALIZZAZIONE
+  # ==========================================================================
+  - type: dnf
+    install:
+      packages:
+        - btop
+        - fastfetch
+        - noto-fonts-emoji
+        - virt-install
+        - libvirt-daemon-config-network
+        - libvirt-daemon-kvm
+        - qemu-kvm
+        - virt-manager
+        - virt-viewer
+        - edk2-ovmf
 
   # ==========================================================================
   # 3. RIMOZIONI BASE: VM, INPUT, ACCESSIBILITA, GAMING E VPN
@@ -53,6 +70,10 @@ modules:
         - hypervfcopyd
         - hypervkvpd
         - hypervvssd
+        - ModemManager
+        - ModemManager-glib
+        - smartmontools
+        - smartmontools-selinux
 
         # Metodi di input asiatici IBus
         - ibus-anthy
@@ -84,6 +105,13 @@ modules:
         - NetworkManager-openvpn
         - NetworkManager-vpnc
 
+        # name: Remove unused identity services
+        - sssd-client
+        - sssd-common
+        - sssd-kcm
+        - sssd-krb5-common
+        - realmd
+
   # ==========================================================================
   # 4. RIMOZIONI STRUMENTI E COMPONENTI OPZIONALI
   # ==========================================================================
@@ -91,9 +119,8 @@ modules:
     remove:
       auto-remove: false
       packages:
-        # Firma/build e librerie AWS non necessarie nell'uso quotidiano
+        # Firma/build
         - cosign
-        - python3-botocore
 
         # Debug e strumenti ridondanti
         - gdb
@@ -132,6 +159,9 @@ modules:
         - nfsv3-client-utils
         - nfsv4-client-utils
         - libnfsidmap
+        # Fingerprint non utilizzato
+        - fprintd
+        - fprintd-pam
 
   # ==========================================================================
   # 5. AKONADI/MARIADB: MANTENUTI
@@ -351,6 +381,49 @@ modules:
         - opencc
 
   # ==========================================================================
+  # 8,5 RIMOZIONI TPM E SOLAAR E GPM
+  # ==========================================================================
+  - type: dnf
+    remove:
+      auto-remove: false
+      packages:
+        - tpm2-tools
+        - tpm2-tss
+        - tpm2-tss-fapi
+        - solaar-udev
+        - gpm-libs
+    # ==========================================================================
+  # 8,6. PULIZIA AUTHSELECT FINGERPRINT (rimuove pam_fprintd.so residuo)
+  # ==========================================================================
+  - type: script
+    snippets:
+      - |
+        set -eu
+
+        if command -v authselect >/dev/null 2>&1; then
+          if authselect current -r 2>/dev/null | grep -qw with-fingerprint; then
+            authselect disable-feature with-fingerprint
+            authselect apply-changes
+            echo "✅ Feature 'with-fingerprint' disabilitata via authselect"
+          else
+            echo "ℹ️ Feature 'with-fingerprint' non presente nel profilo authselect"
+          fi
+        else
+          echo "ℹ️ authselect non disponibile"
+        fi
+
+        # Verifica che non restino riferimenti PAM a pam_fprintd
+        if grep -Rqs 'pam_fprintd\.so' /etc/pam.d /etc/authselect 2>/dev/null; then
+          echo "ERRORE: riferimento PAM residuo a pam_fprintd.so" >&2
+          grep -Rns 'pam_fprintd\.so' /etc/pam.d /etc/authselect 2>/dev/null || true
+          exit 1
+        else
+          echo "✅ Nessun riferimento PAM residuo a pam_fprintd.so"
+        fi
+
+
+
+  # ==========================================================================
   # 9. FLATPAK DI SISTEMA
   # ==========================================================================
   - type: default-flatpaks
@@ -358,8 +431,8 @@ modules:
       - notify: true
         scope: system
         install:
-          - com.github.tchx84.Flatseal
-      - notify: false
+        - com.github.tchx84.Flatseal
+        - notify: false
         scope: user
 
   # ==========================================================================
@@ -369,14 +442,10 @@ modules:
     system:
       enabled:
         - podman.socket
+        - libvirtd.service
       disabled:
-        - system-flatpak-setup.timer
-        - sssd.service
-        - sssd-kcm.socket
         - gssproxy.service
-        - ModemManager.service
         - NetworkManager-wait-online.service
-        - smartd.service
         - fedora-atomic-desktop-appstream-cache-refresh.service
         - flatpak-system-update.timer
       masked:
