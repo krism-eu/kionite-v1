@@ -41,7 +41,6 @@ modules:
       packages:
         - btop
         - fastfetch
-        - noto-fonts-emoji
         - virt-install
         - libvirt-daemon-config-network
         - libvirt-daemon-kvm
