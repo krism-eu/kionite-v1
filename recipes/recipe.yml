@@ -431,8 +431,9 @@ modules:
       - notify: true
         scope: system
         install:
-        - com.github.tchx84.Flatseal
-        - notify: false
+          - com.github.tchx84.Flatseal
+
+      - notify: false
         scope: user
 
   # ==========================================================================
