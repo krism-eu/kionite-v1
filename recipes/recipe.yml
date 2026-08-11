@@ -440,9 +440,6 @@ modules:
   # ==========================================================================
   - type: systemd
     system:
-      enabled:
-        - podman.socket
-        - libvirtd.service
       disabled:
         - gssproxy.service
         - NetworkManager-wait-online.service
