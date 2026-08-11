@@ -64,10 +64,6 @@ modules:
         - hypervfcopyd
         - hypervkvpd
         - hypervvssd
-        - ModemManager
-        - ModemManager-glib
-        - smartmontools
-        - smartmontools-selinux
 
         # Metodi di input asiatici IBus
         - ibus-anthy
@@ -123,7 +119,6 @@ modules:
         - nvtop
         - htop
         - mcelog
-        - mdadm
 
         # Firmware GPU NVIDIA: sistema AMD
         - nvidia-gpu-firmware
@@ -377,15 +372,12 @@ modules:
         - opencc
 
   # ==========================================================================
-  # 8,5 RIMOZIONI TPM E SOLAAR E GPM
+  # 8,5 RIMOZIOne SOLAAR E GPM
   # ==========================================================================
   - type: dnf
     remove:
       auto-remove: false
       packages:
-        - tpm2-tools
-        - tpm2-tss
-        - tpm2-tss-fapi
         - solaar-udev
         - gpm-libs
   # ==========================================================================
@@ -471,6 +463,8 @@ modules:
         - flatpak-system-update.timer
         - systemd-homed.service
         - systemd-homed-activate.service
+        - smartd.service
+        - ModemManager.service
       masked:
         - foomaticrip-upgrade.service
 
