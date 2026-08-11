@@ -6,7 +6,7 @@ name: kionite-v1
 description: "Fedora Kinoite KDE/Wayland superlight — Ryzen 5 5625U Vega 7, 10 W fanless, Btrfs/Snapper, no gaming, no guest tools"
 
 base-image: ghcr.io/ublue-os/kinoite-main
-image-version: latest
+image-version: "44"
 
 modules:
   # ==========================================================================
@@ -34,20 +34,15 @@ modules:
         - kde-connect
 
   # ==========================================================================
-  # 2,5. PACCHETTI VARI e VIRTUALIZZAZIONE
+  # 2,5. PACCHETTI VARI
   # ==========================================================================
   - type: dnf
     install:
       packages:
         - btop
         - fastfetch
-        - virt-install
-        - libvirt-daemon-config-network
-        - libvirt-daemon-kvm
-        - qemu-kvm
-        - virt-manager
-        - virt-viewer
-        - edk2-ovmf
+        - fish
+
 
   # ==========================================================================
   # 3. RIMOZIONI BASE: VM, INPUT, ACCESSIBILITA, GAMING E VPN
@@ -121,12 +116,14 @@ modules:
         # Firma/build
         - cosign
 
-        # Debug e strumenti ridondanti
+        # Debug e strumenti ridondanti & raid
         - gdb
         - gdb-headless
         - vim-enhanced
         - nvtop
         - htop
+        - mcelog
+        - mdadm
 
         # Firmware GPU NVIDIA: sistema AMD
         - nvidia-gpu-firmware
@@ -391,8 +388,8 @@ modules:
         - tpm2-tss-fapi
         - solaar-udev
         - gpm-libs
-    # ==========================================================================
-  # 8,6. PULIZIA AUTHSELECT FINGERPRINT (rimuove pam_fprintd.so residuo)
+  # ==========================================================================
+  # 8,6. PULIZIA AUTHSELECT FINGERPRINT
   # ==========================================================================
   - type: script
     snippets:
@@ -400,25 +397,51 @@ modules:
         set -eu
 
         if command -v authselect >/dev/null 2>&1; then
-          if authselect current -r 2>/dev/null | grep -qw with-fingerprint; then
+          if authselect current -r 2>/dev/null | grep -qw 'with-fingerprint'; then
             authselect disable-feature with-fingerprint
             authselect apply-changes
-            echo "✅ Feature 'with-fingerprint' disabilitata via authselect"
+            echo "✅ Feature 'with-fingerprint' disabilitata"
           else
-            echo "ℹ️ Feature 'with-fingerprint' non presente nel profilo authselect"
+            echo "ℹ️ Feature 'with-fingerprint' non presente"
           fi
-        else
-          echo "ℹ️ authselect non disponibile"
         fi
 
-        # Verifica che non restino riferimenti PAM a pam_fprintd
-        if grep -Rqs 'pam_fprintd\.so' /etc/pam.d /etc/authselect 2>/dev/null; then
-          echo "ERRORE: riferimento PAM residuo a pam_fprintd.so" >&2
-          grep -Rns 'pam_fprintd\.so' /etc/pam.d /etc/authselect 2>/dev/null || true
+        if rpm -q fprintd >/dev/null 2>&1 || rpm -q fprintd-pam >/dev/null 2>&1; then
+          echo "ERRORE: fprintd/fprintd-pam è ancora installato" >&2
+          rpm -q fprintd fprintd-pam || true
           exit 1
-        else
-          echo "✅ Nessun riferimento PAM residuo a pam_fprintd.so"
         fi
+
+        if find /etc/pam.d -type f -exec grep -Hn 'pam_fprintd\.so' {} + 2>/dev/null; then
+          echo "ERRORE: riferimento PAM attivo a pam_fprintd.so" >&2
+          exit 1
+        fi
+
+        echo "✅ Fingerprint completamente rimosso"
+
+  # ==========================================================================
+  # 8,7. RIDUZIONE WALLPAPER PLASMA
+  # ==========================================================================
+  - type: script
+    snippets:
+      - |
+        set -eu
+
+        WALLPAPER_DIR="/usr/share/wallpapers"
+
+        # Mantieni:
+        # - F44        -> wallpaper Fedora 44 predefinito
+        # - Nexus      -> wallpaper Plasma scelto
+        # - Nuvole     -> wallpaper Plasma scelto
+        # - summer_1am -> wallpaper Plasma scelto
+        find "$WALLPAPER_DIR" -mindepth 1 -maxdepth 1 -type d \
+          ! -name 'F44' \
+          ! -name 'Nexus' \
+          ! -name 'Nuvole' \
+          ! -name 'summer_1am' \
+          -exec rm -rf {} +
+
+        echo "✅ Wallpaper ridotti a F44, Nexus, Nuvole e summer_1am"
 
 
 
@@ -430,7 +453,8 @@ modules:
       - notify: true
         scope: system
         install:
-          - com.github.tchx84.Flatseal
+         - com.github.tchx84.Flatseal
+         - io.github.flattool.Warehouse
 
       - notify: false
         scope: user
@@ -445,6 +469,8 @@ modules:
         - NetworkManager-wait-online.service
         - fedora-atomic-desktop-appstream-cache-refresh.service
         - flatpak-system-update.timer
+        - systemd-homed.service
+        - systemd-homed-activate.service
       masked:
         - foomaticrip-upgrade.service
 
