@@ -2,10 +2,10 @@
 
 version: 1
 
-name: kionite-v1
-description: "Fedora Kinoite KDE/Wayland superlight — Ryzen 5 5625U Vega 7, 10 W fanless, Btrfs/Snapper, no gaming, no guest tools"
+name: kinoite-base-main-v1
+description: "Fedora KDE/Wayland superlight from base-main — Ryzen 5 5625U / Vega 7, fanless, Btrfs/Snapper"
 
-base-image: ghcr.io/ublue-os/kinoite-main
+base-image: ghcr.io/ublue-os/base-main
 image-version: "44"
 
 modules:
@@ -18,39 +18,96 @@ modules:
         destination: /
 
   # ==========================================================================
-  # 2. PACCHETTI BASE NECESSARI
+  # 2. PACCHETTI BASE, AUDIO E PLASMA
   # ==========================================================================
   - type: dnf
     install:
+      install-weak-deps: false
       packages:
+        # Lingue minime
         - glibc-langpack-en
         - glibc-langpack-it
+
+        # Storage e sistema
         - snapper
         - btrfs-assistant
         - btrfsmaintenance
         - rclone
+
+        # Audio moderno: PipeWire + WirePlumber.
+        # pipewire-pulseaudio offre compatibilità PulseAudio tramite PipeWire.
+        - pipewire
+        - pipewire-alsa
+        - pipewire-pulseaudio
+        - wireplumber
         - mt7xxx-firmware
+
+        # KDE / Plasma
+        - plasma-desktop
+        - plasma-workspace
+        - kscreen
+        - powerdevil
+        - plasma-nm
+        - plasma-pa
+        - plasma-systemmonitor
+        - plasma-discover
+        - plasma-discover-flatpak
         - plasma-print-manager
         - kde-connect
+        - kde-gtk-config
+        - kdeplasma-addons
+        - bluedevil
+        - kde-settings
+        - kde-settings-plasma
+        - kwalletmanager5
+        - kio-fuse
+        - kdegraphics-thumbnailers
 
-  # ==========================================================================
-  # 2,5. PACCHETTI VARI
-  # ==========================================================================
-  - type: dnf
-    install:
-      packages:
+        # Plasma Login Manager
+        - plasma-login-manager
+        - kcm-plasmalogin
+        - kde-settings-plasmalogin
+
+        # Portali e compatibilità X11 per applicazioni legacy
+        - xdg-desktop-portal-kde
+        - xorg-x11-server-Xwayland
+
+        # Applicazioni KDE
+        - dolphin
+        - dolphin-plugins
+        - kate
+        - kwrite
+        - konsole
+        - ark
+        - gwenview
+        - spectacle
+        - okular
+        - kfind
+        - filelight
+        - kinfocenter
+        - kio-admin
+        - kde-partitionmanager
+
+        # Strumenti CLI
         - btop
         - fastfetch
         - fish
+        - openssh-server
 
+        # Sfondi
+        - f44-backgrounds-base
+        - f44-backgrounds-kde
 
   # ==========================================================================
-  # 3. RIMOZIONI BASE: VM, INPUT, ACCESSIBILITA, GAMING E VPN
+  # 3. RIMOZIONI BASE: VM, INPUT, ACCESSIBILITÀ, GAMING, VPN, NFS
   # ==========================================================================
   - type: dnf
     remove:
       auto-remove: false
       packages:
+        - kde-settings-pulseaudio
+        - pulseaudio
+
         # Guest tools VM
         - virtualbox-guest-additions
         - open-vm-tools
@@ -77,15 +134,16 @@ modules:
         - kasumi-unicode
         - anthy-unicode
 
-        # Accessibilita non utilizzata
+        # Accessibilità non utilizzata
         - braille-printer-app
         - brltty
         - brlapi
         - python3-brlapi
         - orca
 
-        # Gaming
+        # Gaming e periferiche non utilizzate
         - gamemode
+        - solaar-udev
 
         # Backend VPN
         - openconnect
@@ -95,12 +153,21 @@ modules:
         - NetworkManager-openvpn
         - NetworkManager-vpnc
 
-        # name: Remove unused identity services
+        # Identity enterprise, NFS e RPC
         - sssd-client
         - sssd-common
         - sssd-kcm
         - sssd-krb5-common
+        - sssd-nfs-idmap
         - realmd
+        - nfs-client-utils
+        - nfs-common-utils
+        - nfsv3-client-utils
+        - nfsv4-client-utils
+        - nfs-utils
+        - libnfsidmap
+        - rpcbind
+        - gssproxy
 
   # ==========================================================================
   # 4. RIMOZIONI STRUMENTI E COMPONENTI OPZIONALI
@@ -109,76 +176,68 @@ modules:
     remove:
       auto-remove: false
       packages:
-        # Firma/build
+        # Firma/build, debug e tool ridondanti
         - cosign
-
-        # Debug e strumenti ridondanti & raid
         - gdb
         - gdb-headless
         - vim-enhanced
+        - vim-common
+        - vim-data
+        - vim-filesystem
+        - xxd
         - nvtop
         - htop
+        - hwloc-libs
         - mcelog
+        - gpm-libs
 
-        # Firmware GPU NVIDIA: sistema AMD
+        # Firmware GPU NVIDIA: hardware AMD.
         - nvidia-gpu-firmware
 
-        # Driver HP: la multifunzione epson usa CUPS/SANE/Gutenprint
+        # Driver HP e altri driver stampanti non Epson.
+        # CUPS resta installato.
         - hplip
         - hplip-common
         - hplip-libs
-
-        # Driver stampanti non Epson
         - printer-driver-brlaser
         - ptouch-driver
 
-        # Desktop remoto KDE
+        # Desktop remoto KDE e moduli KDE non usati
         - krfb
         - krfb-libs
         - krdp
-
-        # Componenti KDE opzionali non utilizzati
         - khelpcenter
         - plasma-welcome
         - kdebugsettings
         - plasma-thunderbolt
 
-        # Client NFS non utilizzati
-        - nfs-client-utils
-        - nfs-common-utils
-        - nfs-utils
-        - nfsv3-client-utils
-        - nfsv4-client-utils
-        - libnfsidmap
-        # Fingerprint non utilizzato
+        # Fingerprint
         - fprintd
         - fprintd-pam
 
-  # ==========================================================================
-  # 5. AKONADI/MARIADB: MANTENUTI
-  # ==========================================================================
-  # Akonadi e Akonadi-MySQL sono mantenuti perche i loro scriptlet %postun
-  # falliscono nel container Fedora durante la build.
-  # Anche MariaDB e qt6-qtbase-mysql restano installati in questa versione.
+        # SMART / monitoraggio hardware non desiderato
+        - smartmontools
+        - smartmontools-selinux
 
   # ==========================================================================
-  # 6. RIMOZIONI MODEM, FIRMWARE INTEL E SMARTCARD
+  # 5. RIMOZIONI MODEM, INTEL E SMARTCARD
   # ==========================================================================
   - type: dnf
     remove:
       auto-remove: false
       packages:
-        # PIM, modem e componenti opzionali
+        # Non rimuovere ModemManager: mantenerlo evita rimozioni a cascata
+        # di componenti NetworkManager non ancora validate.
         - fwupd-plugin-modem-manager
         - kunifiedpush
         - mobile-broadband-provider-info
         - qcom-wwan-firmware
-        - usb_modeswitch
-        - usb_modeswitch-data
+        - usbmodeswitch
+        - usbmodeswitch-data
 
-        # mt7xxx-firmware NON va rimosso: serve al Wi-Fi/Bluetooth MediaTek
+        # mt7xxx-firmware NON va rimosso: serve al Wi-Fi/Bluetooth MediaTek.
 
-        # Componenti Intel non necessari sul sistema Ryzen/AMD
+        # Hardware AMD: stack Intel GPU/media non necessario.
         - intel-gmmlib
         - intel-gpu-firmware
         - intel-lpmd
@@ -188,7 +247,7 @@ modules:
         - intel-vsc-firmware
         - libva-intel-media-driver
 
-        # Smartcard, PC/SC e YubiKey
+        # Smartcard e YubiKey. pcsc-lite resta deliberatamente fuori.
         - libpskc
         - libyubikey
         - opensc
@@ -196,9 +255,7 @@ modules:
         - pam-u2f
         - pam_yubico
         - pamu2fcfg
-        - pcsc-lite
         - pcsc-lite-ccid
-        - pcsc-lite-libs
         - python3-fido2
         - python3-pskc
         - python3-pyscard
@@ -208,13 +265,12 @@ modules:
         - yubikey-manager
 
   # ==========================================================================
-  # 7. RIMOZIONI KDE, VLC, FONT E FIREFOX
+  # 6. RIMOZIONI KDE, VLC, FONT E FIREFOX
   # ==========================================================================
   - type: dnf
     remove:
       auto-remove: false
       packages:
-        # Integrazione Google Drive KDE
         - kio-gdrive
         - libkgapi
 
@@ -308,32 +364,26 @@ modules:
         - google-noto-sans-mono-cjk-vf-fonts
         - google-noto-serif-cjk-vf-fonts
 
-        # Firefox RPM e pacchetti lingua
+        # Firefox RPM: usare Flatpak se desiderato.
         - firefox
         - firefox-langpacks
 
-        # CLDR emoji annotation
         - cldr-emoji-annotation
         - cldr-emoji-annotation-dtd
-
-        # Residui Fedora Workstation
         - xdriinfo
         - fedora-bookmarks
         - fedora-chromium-config
         - fedora-chromium-config-kde
         - fedora-workstation-backgrounds
-
-        # Sostituito dai langpack minimi en/it
         - glibc-all-langpacks
 
   # ==========================================================================
-  # 8. RIMOZIONE INPUT METHOD FCITX5
+  # 7. RIMOZIONE INPUT METHOD FCITX5
   # ==========================================================================
   - type: dnf
     remove:
       auto-remove: false
       packages:
-        # Core Fcitx5 non utilizzato
         - fcitx5
         - fcitx5-configtool
         - fcitx5-data
@@ -349,8 +399,6 @@ modules:
         - fcitx5-qt-libfcitx5qtdbus
         - fcitx5-qt-qt6gui
         - kcm-fcitx5
-
-        # Addon e librerie input asiatiche
         - fcitx5-chewing
         - fcitx5-chinese-addons
         - fcitx5-chinese-addons-data
@@ -372,7 +420,7 @@ modules:
         - opencc
 
   # ==========================================================================
-  # 8,5 RIMOZIOne SOLAAR E GPM
+  # 8. RIMOZIONI VARIE
   # ==========================================================================
   - type: dnf
     remove:
@@ -380,62 +428,32 @@ modules:
       packages:
         - solaar-udev
         - gpm-libs
-  # ==========================================================================
-  # 8,6. PULIZIA AUTHSELECT FINGERPRINT
-  # ==========================================================================
-  - type: script
-    snippets:
-      - |
-        set -eu
-
-        if command -v authselect >/dev/null 2>&1; then
-          if authselect current -r 2>/dev/null | grep -qw 'with-fingerprint'; then
-            authselect disable-feature with-fingerprint
-            authselect apply-changes
-            echo "✅ Feature 'with-fingerprint' disabilitata"
-          else
-            echo "ℹ️ Feature 'with-fingerprint' non presente"
-          fi
-        fi
-
-        if rpm -q fprintd >/dev/null 2>&1 || rpm -q fprintd-pam >/dev/null 2>&1; then
-          echo "ERRORE: fprintd/fprintd-pam è ancora installato" >&2
-          rpm -q fprintd fprintd-pam || true
-          exit 1
-        fi
-
-        if find /etc/pam.d -type f -exec grep -Hn 'pam_fprintd\.so' {} + 2>/dev/null; then
-          echo "ERRORE: riferimento PAM attivo a pam_fprintd.so" >&2
-          exit 1
-        fi
-
-        echo "✅ Fingerprint completamente rimosso"
+        - gssproxy
 
   # ==========================================================================
-  # 8,7. RIDUZIONE WALLPAPER PLASMA
+  # 8.5. PULIZIA AUTHSELECT / FINGERPRINT
   # ==========================================================================
   - type: script
     snippets:
       - |
         set -eu
 
-        WALLPAPER_DIR="/usr/share/wallpapers"
+        if command -v authselect >/dev/null 2>&1 \
+          && authselect current -r 2>/dev/null | grep -qw with-fingerprint; then
+          authselect disable-feature with-fingerprint
+          authselect apply-changes
+        fi
 
-        # Mantieni:
-        # - F44        -> wallpaper Fedora 44 predefinito
-        # - Nexus      -> wallpaper Plasma scelto
-        # - Nuvole     -> wallpaper Plasma scelto
-        # - summer_1am -> wallpaper Plasma scelto
-        find "$WALLPAPER_DIR" -mindepth 1 -maxdepth 1 -type d \
-          ! -name 'F44' \
-          ! -name 'Nexus' \
-          ! -name 'Nuvole' \
-          ! -name 'summer_1am' \
-          -exec rm -rf {} +
+        if rpm -q fprintd fprintd-pam >/dev/null 2>&1; then
+          echo "fprintd o fprintd-pam è ancora installato" >&2
+          exit 1
+        fi
 
-        echo "✅ Wallpaper ridotti a F44, Nexus, Nuvole e summer_1am"
-
-
+        if grep -Rqs 'pam_fprintd\.so' /etc/pam.d 2>/dev/null; then
+          echo "Riferimento PAM residuo a pam_fprintd.so" >&2
+          grep -Rns 'pam_fprintd\.so' /etc/pam.d || true
+          exit 1
+        fi
 
   # ==========================================================================
   # 9. FLATPAK DI SISTEMA
@@ -445,33 +463,48 @@ modules:
       - notify: true
         scope: system
         install:
-         - com.github.tchx84.Flatseal
-         - io.github.flattool.Warehouse
-
+          - com.github.tchx84.Flatseal
+          - io.github.flattool.Warehouse
       - notify: false
         scope: user
 
   # ==========================================================================
-  # 10. SERVIZI SYSTEMD
+  # 10. PULIZIA DNF E TARGET GRAFICO
+  # ==========================================================================
+  - type: script
+    snippets:
+      - |
+        set -eu
+        dnf clean all
+        rm -rf /var/cache/dnf
+        systemctl set-default graphical.target
+
+  # ==========================================================================
+  # 11. SERVIZI SYSTEMD
   # ==========================================================================
   - type: systemd
     system:
+      enabled:
+        - plasmalogin.service
       disabled:
-        - gssproxy.service
         - NetworkManager-wait-online.service
+        - fedora-atomic-desktop-mandb-update.service
         - fedora-atomic-desktop-appstream-cache-refresh.service
         - flatpak-system-update.timer
         - systemd-homed.service
         - systemd-homed-activate.service
-        - smartd.service
         - ModemManager.service
+        - sshd.service
       masked:
         - foomaticrip-upgrade.service
 
-  # ==========================================================================
-  # 11. FIRMA DELL'IMMAGINE - OPZIONALE
-  # ==========================================================================
-  # - type: signing
-  #   cosign:
-  #     private-key: ${{ secrets.COSIGN_PRIVATE_KEY }}
-  #     password: ${{ secrets.COSIGN_PASSWORD }}
+# Non abilitare fedora-kinoite-plasmalogin-workaround.service.
+# È un workaround specifico Kinoite/OSTree e non va copiato in una base-main.
+
+# ==========================================================================
+# 12. FIRMA DELL'IMMAGINE — OPZIONALE
+# ==========================================================================
+# - type: signing
+#   cosign:
+#     private-key: ${{ secrets.COSIGN_PRIVATE_KEY }}
+#     password: ${{ secrets.COSIGN_PASSWORD }}
