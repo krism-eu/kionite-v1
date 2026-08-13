@@ -320,8 +320,6 @@ modules:
         - rit-rachana-fonts
         - sil-padauk-fonts
         - vazirmatn-vf-fonts
-        - google-droid-sans-fonts
-        - open-sans-fonts
 
         # Font CJK
         - default-fonts-cjk-mono
