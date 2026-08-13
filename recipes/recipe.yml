@@ -450,7 +450,7 @@ modules:
         - systemd-tpm2-clear.service
         - thermald.service
       masked:
-        - dbus-org.freedesktop.home1.service
+        # - xxx
 
 # Non abilitare fedora-kinoite-plasmalogin-workaround.service.
 # È un workaround specifico Kinoite/OSTree e non va copiato in una base-main.
