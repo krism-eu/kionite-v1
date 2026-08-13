@@ -195,14 +195,6 @@ modules:
         # Firmware GPU NVIDIA: hardware AMD.
         - nvidia-gpu-firmware
 
-        # Driver HP e altri driver stampanti non Epson.
-        # CUPS resta installato.
-        - hplip
-        - hplip-common
-        - hplip-libs
-        - printer-driver-brlaser
-        - ptouch-driver
-
         # SMART / monitoraggio hardware non desiderato
         - smartmontools
         - smartmontools-selinux
@@ -373,8 +365,6 @@ modules:
         - hunspell-en-AU
         - hunspell-en-CA
         - hunspell-en-GB
-        - dymo-cups-drivers
-        - c2esp
 
   # ==========================================================================
   # 8.5. PULIZIA AUTHSELECT / FINGERPRINT
