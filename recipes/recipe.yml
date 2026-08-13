@@ -66,6 +66,7 @@ modules:
         - kdegraphics-thumbnailers
         - kcalc
         - skanpage
+        - kompare
 
         # Plasma Login Manager
         - plasma-login-manager
@@ -449,9 +450,8 @@ modules:
         - mdmonitor.service
         - systemd-tpm2-clear.service
         - thermald.service
-      masked:
-        # - xxx
-
+      masked: []
+      
 # Non abilitare fedora-kinoite-plasmalogin-workaround.service.
 # È un workaround specifico Kinoite/OSTree e non va copiato in una base-main.
 
