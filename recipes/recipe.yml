@@ -41,6 +41,8 @@ modules:
         - pipewire-pulseaudio
         - wireplumber
         - mt7xxx-firmware
+        - mesa-vulkan-drivers
+        - mesa-va-drivers
 
         # KDE / Plasma
         - plasma-desktop
@@ -62,6 +64,8 @@ modules:
         - kwalletmanager5
         - kio-fuse
         - kdegraphics-thumbnailers
+        - kcalc
+        - skanpage
 
         # Plasma Login Manager
         - plasma-login-manager
@@ -87,27 +91,31 @@ modules:
         - kinfocenter
         - kio-admin
         - kde-partitionmanager
+        - kf6-sonnet-hunspell
 
         # Strumenti CLI
         - btop
         - fastfetch
-        - fish
         - openssh-server
+        - hunspell-it
+        - unrar-free
+        - system-config-printer
+        - fzf
+        - bash-completion
+        - grsync
+
 
         # Sfondi
         - f44-backgrounds-base
         - f44-backgrounds-kde
 
   # ==========================================================================
-  # 3. RIMOZIONI BASE: VM, INPUT, ACCESSIBILITÀ, GAMING, VPN, NFS
+  # 3. RIMOZIONI BASE: VM, INPUT, ACCESSIBILITÀ, GAMING, NFS
   # ==========================================================================
   - type: dnf
     remove:
       auto-remove: false
       packages:
-        - kde-settings-pulseaudio
-        - pulseaudio
-
         # Guest tools VM
         - virtualbox-guest-additions
         - open-vm-tools
@@ -143,15 +151,6 @@ modules:
 
         # Gaming e periferiche non utilizzate
         - gamemode
-        - solaar-udev
-
-        # Backend VPN
-        - openconnect
-        - openvpn
-        - vpnc
-        - NetworkManager-openconnect
-        - NetworkManager-openvpn
-        - NetworkManager-vpnc
 
         # Identity enterprise, NFS e RPC
         - sssd-client
@@ -168,6 +167,9 @@ modules:
         - libnfsidmap
         - rpcbind
         - gssproxy
+        - audit
+        - audit-rules
+
 
   # ==========================================================================
   # 4. RIMOZIONI STRUMENTI E COMPONENTI OPZIONALI
@@ -177,9 +179,6 @@ modules:
       auto-remove: false
       packages:
         # Firma/build, debug e tool ridondanti
-        - cosign
-        - gdb
-        - gdb-headless
         - vim-enhanced
         - vim-common
         - vim-data
@@ -190,6 +189,7 @@ modules:
         - hwloc-libs
         - mcelog
         - gpm-libs
+        - cosign
 
         # Firmware GPU NVIDIA: hardware AMD.
         - nvidia-gpu-firmware
@@ -201,19 +201,6 @@ modules:
         - hplip-libs
         - printer-driver-brlaser
         - ptouch-driver
-
-        # Desktop remoto KDE e moduli KDE non usati
-        - krfb
-        - krfb-libs
-        - krdp
-        - khelpcenter
-        - plasma-welcome
-        - kdebugsettings
-        - plasma-thunderbolt
-
-        # Fingerprint
-        - fprintd
-        - fprintd-pam
 
         # SMART / monitoraggio hardware non desiderato
         - smartmontools
@@ -229,11 +216,9 @@ modules:
         # Non rimuovere ModemManager: mantenerlo evita rimozioni a cascata
         # di componenti NetworkManager non ancora validate.
         - fwupd-plugin-modem-manager
-        - kunifiedpush
-        - mobile-broadband-provider-info
         - qcom-wwan-firmware
-        - usbmodeswitch
-        - usbmodeswitch-data
+        - usb_modeswitch
+        - usb_modeswitch-data
 
         # mt7xxx-firmware NON va rimosso: serve al Wi-Fi/Bluetooth MediaTek.
 
@@ -247,15 +232,16 @@ modules:
         - intel-vsc-firmware
         - libva-intel-media-driver
 
-        # Smartcard e YubiKey. pcsc-lite resta deliberatamente fuori.
-        - libpskc
-        - libyubikey
-        - opensc
-        - opensc-libs
-        - pam-u2f
-        - pam_yubico
-        - pamu2fcfg
-        - pcsc-lite-ccid
+        # Firmware Wi-Fi non usato (in base a lspci/lsusb: solo MediaTek + Realtek presenti)
+        - iwlwifi-mvm-firmware
+        - iwlwifi-mld-firmware
+        - iwlwifi-dvm-firmware
+        - iwlegacy-firmware
+        - atheros-firmware
+        - brcmfmac-firmware
+        - libertas-firmware
+        - nxpwireless-firmware
+        - tiwilink-firmware
         - python3-fido2
         - python3-pskc
         - python3-pyscard
@@ -265,27 +251,12 @@ modules:
         - yubikey-manager
 
   # ==========================================================================
-  # 6. RIMOZIONI KDE, VLC, FONT E FIREFOX
+  # 6. RIMOZIONI FONT, FIREFOX E VARIE
   # ==========================================================================
   - type: dnf
     remove:
       auto-remove: false
       packages:
-        - kio-gdrive
-        - libkgapi
-
-        # VLC e backend Phonon VLC
-        - phonon-backend-vlc-common
-        - phonon-qt5-backend-vlc
-        - phonon-qt6-backend-vlc
-        - vlc-libs
-        - vlc-plugin-ffmpeg
-        - vlc-plugin-gstreamer
-        - vlc-plugin-pipewire
-        - vlc-plugin-pulseaudio
-        - vlc-plugins-base
-        - vlc-plugins-video-out
-
         # Font linguistici non necessari
         - default-fonts-am
         - default-fonts-ar
@@ -356,6 +327,8 @@ modules:
         - rit-rachana-fonts
         - sil-padauk-fonts
         - vazirmatn-vf-fonts
+        - google-droid-sans-fonts
+        - open-sans-fonts
 
         # Font CJK
         - default-fonts-cjk-mono
@@ -370,54 +343,24 @@ modules:
 
         - cldr-emoji-annotation
         - cldr-emoji-annotation-dtd
-        - xdriinfo
         - fedora-bookmarks
         - fedora-chromium-config
-        - fedora-chromium-config-kde
         - fedora-workstation-backgrounds
         - glibc-all-langpacks
 
   # ==========================================================================
-  # 7. RIMOZIONE INPUT METHOD FCITX5
+  # 7. RIMOZIONE INPUT METHOD RESIDUI
   # ==========================================================================
   - type: dnf
     remove:
       auto-remove: false
       packages:
-        - fcitx5
-        - fcitx5-configtool
-        - fcitx5-data
-        - fcitx5-gtk
-        - fcitx5-gtk3
-        - fcitx5-gtk4
-        - fcitx5-libs
-        - fcitx5-lua
-        - fcitx5-qt
-        - fcitx5-qt5
-        - fcitx5-qt6
-        - fcitx5-qt-libfcitx5qt6widgets
-        - fcitx5-qt-libfcitx5qtdbus
-        - fcitx5-qt-qt6gui
-        - kcm-fcitx5
-        - fcitx5-chewing
-        - fcitx5-chinese-addons
-        - fcitx5-chinese-addons-data
-        - fcitx5-hangul
-        - fcitx5-libthai
-        - fcitx5-m17n
-        - fcitx5-mozc
-        - fcitx5-sayura
-        - fcitx5-unikey
         - libchewing
         - libhangul
-        - libime
-        - libime-data
         - libpinyin
         - libpinyin-data
         - m17n-db
-        - m17n-db-devel
         - m17n-lib
-        - opencc
 
   # ==========================================================================
   # 8. RIMOZIONI VARIE
@@ -426,9 +369,11 @@ modules:
     remove:
       auto-remove: false
       packages:
-        - solaar-udev
-        - gpm-libs
-        - gssproxy
+        - hunspell-en-AU
+        - hunspell-en-CA
+        - hunspell-en-GB
+        - dymo-cups-drivers
+        - c2esp
 
   # ==========================================================================
   # 8.5. PULIZIA AUTHSELECT / FINGERPRINT
@@ -442,11 +387,6 @@ modules:
           && authselect current -r 2>/dev/null | grep -qw with-fingerprint; then
           authselect disable-feature with-fingerprint
           authselect apply-changes
-        fi
-
-        if rpm -q fprintd fprintd-pam >/dev/null 2>&1; then
-          echo "fprintd o fprintd-pam è ancora installato" >&2
-          exit 1
         fi
 
         if grep -Rqs 'pam_fprintd\.so' /etc/pam.d 2>/dev/null; then
@@ -464,7 +404,6 @@ modules:
         scope: system
         install:
           - com.github.tchx84.Flatseal
-          - io.github.flattool.Warehouse
       - notify: false
         scope: user
 
@@ -480,6 +419,14 @@ modules:
         systemctl set-default graphical.target
 
   # ==========================================================================
+  # 10.5 BASHRC
+  # ==========================================================================
+  - type: files
+    files:
+      - source: bashrc
+        destination: /etc/skel/.bashrc
+
+  # ==========================================================================
   # 11. SERVIZI SYSTEMD
   # ==========================================================================
   - type: systemd
@@ -491,12 +438,21 @@ modules:
         - fedora-atomic-desktop-mandb-update.service
         - fedora-atomic-desktop-appstream-cache-refresh.service
         - flatpak-system-update.timer
-        - systemd-homed.service
-        - systemd-homed-activate.service
         - ModemManager.service
         - sshd.service
+        - auditd.service
+        - audit-rules.service
+        - flatpak-add-fedora-repos.service
+        - lvm-devices-import.service
+        - lvm2-monitor.service
+        - systemd-confext.service
+        - rpmdb-rebuild.service
+        - systemd-network-generator.service
+        - mdmonitor.service
+        - systemd-tpm2-clear.service
+        - thermald.service
       masked:
-        - foomaticrip-upgrade.service
+        - dbus-org.freedesktop.home1.service
 
 # Non abilitare fedora-kinoite-plasmalogin-workaround.service.
 # È un workaround specifico Kinoite/OSTree e non va copiato in una base-main.
@@ -505,6 +461,5 @@ modules:
 # 12. FIRMA DELL'IMMAGINE — OPZIONALE
 # ==========================================================================
 # - type: signing
-#   cosign:
-#     private-key: ${{ secrets.COSIGN_PRIVATE_KEY }}
-#     password: ${{ secrets.COSIGN_PASSWORD }}
+#     cosign:
+#        key:
